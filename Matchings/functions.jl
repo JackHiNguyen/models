@@ -1,0 +1,22 @@
+
+# to print out extracted values from worker and firm constraints
+function print_shadow_prices(worker_constraints, firm_constraints)
+    no_w = length(worker_constraints)
+    no_f = length(firm_constraints)
+
+    worker_value = zeros(no_w)
+    firm_value = zeros(no_f)
+
+    for i in 1:no_w
+        worker_value[i] = shadow_price(worker_constraints[i])
+    end
+
+    for f in 1:no_f
+        firm_value[f] = shadow_price(firm_constraints[f])
+    end
+
+    println("Worker values: ", round.(worker_value, digits=3))
+    println("Firm values:   ", round.(firm_value, digits=3))
+end
+
+
