@@ -39,3 +39,36 @@ function solve_model(matrix, print_match = false, q = fill(1, size(matrix)[2]))
     # print_shadow_prices(worker, firm)
     return μ_opt
 end
+
+
+function update_signal(signal, match)
+    no_w, no_f = size(signal)[1], size(signal)[2]
+    for i in 1:no_w, j in 1:no_f
+        if match[i,j] == 1
+            signal[i,j] = ability[i,j] #signal becomes true ablity as firms learn
+        end
+    end
+end
+
+
+function retention(signal, match)
+    retention = []
+    no_w, no_f = size(signal)[1], size(signal)[2]
+    for worker in 1:no_w, firm in 1:no_f
+        if match[worker, firm] == 1
+            others = [signal[i, firm] for i in 1:no_w if match[i, firm] == 0]
+            # println(signal[worker, firm], others)
+            if signal[worker,firm] > quantile(others, 0.75)
+                push!(retention, (worker,firm))
+            end
+        end
+    end
+    return retention 
+end 
+
+
+function mask(signal, retention_list)
+    remove_row = [i[1] for i in retention_list]
+    keep_row = [i for i in 1:size(signal)[1] if !(i in remove_row)]
+    return signal[keep_row, :]
+end 
