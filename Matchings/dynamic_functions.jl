@@ -21,14 +21,14 @@ end
 
 
 
-function solve_model(matrix, print_match = false)
+function solve_model(matrix, print_match = false, q = fill(1, size(matrix)[2]))
     no_w, no_f = size(matrix)[1], size(matrix)[2]
 
     model = Model(GLPK.Optimizer) 
 
     @variable(model, 0 <= μ[1:no_w, 1:no_f] <= 1)
 
-    @objective(model, Max, sum(S[i,f] * μ[i,f] for i in 1:no_w, f in 1:no_f))
+    @objective(model, Max, sum(matrix[i,f] * μ[i,f] for i in 1:no_w, f in 1:no_f))
 
     worker = @constraint(model, [i=1:no_w], sum(μ[i,f] for f in 1:no_f) <= 1)
     firm = @constraint(model, [f=1:no_f], sum(μ[i,f] for i in 1:no_w) <= q[f])
@@ -36,5 +36,6 @@ function solve_model(matrix, print_match = false)
     optimize!(model)
     μ_opt = value.(μ)
     print_match && display(μ_opt) 
-    print_shadow_prices(worker, firm)
+    # print_shadow_prices(worker, firm)
+    return μ_opt
 end
